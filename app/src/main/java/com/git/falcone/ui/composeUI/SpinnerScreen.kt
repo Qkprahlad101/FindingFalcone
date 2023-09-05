@@ -8,7 +8,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.git.falcone.ui.FindFalconeViewModel
-import android.widget.Spinner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -69,19 +68,22 @@ fun SpinnerScreen() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Dropdown(selectedPlanet1, planetsData, "Select a Planet")
+            Dropdown(
+                selectedPlanet1,
+                planetsData.filter { it !== selectedPlanet2.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
+                "Select a Planet")
             RadioGroup(selectedVehicle1, vehiclesData, "Vehicle 1")
 
             Dropdown(
                 selectedPlanet2,
-                planetsData.filter { it !== selectedPlanet1.value },
+                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select another Planet"
             )
             RadioGroup(selectedVehicle2, vehiclesData, "Vehicle 2")
 
             Dropdown(
                 selectedPlanet3,
-                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value },
+                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet4.value },
                 "Select a third Planet"
             )
             RadioGroup(selectedVehicle3, vehiclesData, "Vehicle 3")
