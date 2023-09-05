@@ -2,7 +2,6 @@ package com.git.falcone.ui
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.git.falcone.model.data.repository.Repository

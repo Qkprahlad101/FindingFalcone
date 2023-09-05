@@ -11,164 +11,167 @@ import com.git.falcone.ui.FindFalconeViewModel
 import android.widget.Spinner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.RadioButton
+import androidx.compose.material.Surface
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.git.falcone.model.data.response.PlanetsResponse
+import com.git.falcone.model.data.response.VehicleResponse
+
 
 @Composable
 fun SpinnerScreen() {
     val viewModel: FindFalconeViewModel = viewModel()
-    val data = viewModel.planetsLiveData.value ?: emptyList()
-    val spinnerData = data.map { it.name } ?: emptyList()
+    val planetsData = viewModel.planetsLiveData.value ?: emptyList()
+    val vehiclesData = viewModel.vehiclesLiveData.value ?: emptyList()
 
-    val selectedData1 = remember { mutableStateOf("") }
-    val selectedData2 = remember { mutableStateOf("") }
-    val selectedData3 = remember { mutableStateOf("") }
-    val selectedData4 = remember { mutableStateOf("") }
+    val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
+    val selectedVehicle1 = remember { mutableStateOf<VehicleResponse?>(null) }
+    val selectedPlanet2 = remember { mutableStateOf<PlanetsResponse?>(null) }
+    val selectedVehicle2 = remember { mutableStateOf<VehicleResponse?>(null) }
+    val selectedPlanet3 = remember { mutableStateOf<PlanetsResponse?>(null) }
+    val selectedVehicle3 = remember { mutableStateOf<VehicleResponse?>(null) }
+    val selectedPlanet4 = remember { mutableStateOf<PlanetsResponse?>(null) }
+    val selectedVehicle4 = remember { mutableStateOf<VehicleResponse?>(null) }
 
-    Column {
-        Text("Selected items: ${selectedData1.value}, ${selectedData2.value}, ${selectedData3.value}, ${selectedData4.value}")
-
-        var expanded by remember { mutableStateOf(false) }
-
-        Box(
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colors.background
+    ) {
+        Column(
             modifier = Modifier
-                .width(200.dp)
-                .clickable(onClick = { expanded = true })
-                .background(Color.LightGray)
+                .fillMaxWidth()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = if (selectedData1.value.isEmpty()) "Select an item" else selectedData1.value,
-                modifier = Modifier.padding(16.dp)
+                text = "Selected items: ${selectedPlanet1.value?.name ?: ""}, ${selectedPlanet2.value?.name ?: ""}, ${selectedPlanet3.value?.name ?: ""}, ${selectedPlanet4.value?.name ?: ""}",
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                spinnerData.forEach { item ->
-                    DropdownMenuItem(onClick = {
-                        selectedData1.value = item
-                        expanded = false
-                    }) {
-                        Text(text = item)
-                    }
-                }
-            }
-        }
+            Dropdown(selectedPlanet1, planetsData, "Select a Planet")
+            RadioGroup(selectedVehicle1, vehiclesData, "Vehicle 1")
 
-        var expanded2 by remember { mutableStateOf(false) }
-
-        Box(
-            modifier = Modifier
-                .width(200.dp)
-                .clickable(onClick = { expanded2 = true })
-                .background(Color.LightGray)
-        ) {
-            Text(
-                text = if (selectedData2.value.isEmpty()) "Select an item" else selectedData2.value,
-                modifier = Modifier.padding(16.dp)
+            Dropdown(
+                selectedPlanet2,
+                planetsData.filter { it !== selectedPlanet1.value },
+                "Select another Planet"
             )
+            RadioGroup(selectedVehicle2, vehiclesData, "Vehicle 2")
 
-            DropdownMenu(
-                expanded = expanded2,
-                onDismissRequest = { expanded2 = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                spinnerData.filter { it != selectedData1.value }.forEach { item ->
-                    DropdownMenuItem(onClick = {
-                        selectedData2.value = item
-                        expanded2 = false
-                    }) {
-                        Text(text = item)
-                    }
-                }
-            }
-        }
-
-        var expanded3 by remember { mutableStateOf(false) }
-
-        Box(
-            modifier = Modifier
-                .width(200.dp)
-                .clickable(onClick = { expanded3 = true })
-                .background(Color.LightGray)
-        ) {
-            Text(
-                text = if (selectedData3.value.isEmpty()) "Select an item" else selectedData3.value,
-                modifier = Modifier.padding(16.dp)
+            Dropdown(
+                selectedPlanet3,
+                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value },
+                "Select a third Planet"
             )
+            RadioGroup(selectedVehicle3, vehiclesData, "Vehicle 3")
 
-            DropdownMenu(
-                expanded = expanded3,
-                onDismissRequest = { expanded3 = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                spinnerData.filter { it != selectedData1.value && it != selectedData2.value }.forEach { item ->
-                    DropdownMenuItem(onClick = {
-                        selectedData3.value = item
-                        expanded3 = false
-                    }) {
-                        Text(text = item)
-                    }
-                }
-            }
-        }
-
-        var expanded4 by remember { mutableStateOf(false) }
-
-        Box(
-            modifier = Modifier
-                .width(200.dp)
-                .clickable(onClick = { expanded4 = true })
-                .background(Color.LightGray)
-        ) {
-            Text(
-                text = if (selectedData4.value.isEmpty()) "Select an item" else selectedData4.value,
-                modifier = Modifier.padding(16.dp)
+            Dropdown(
+                selectedPlanet4,
+                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet3.value },
+                "Select a fourth Planet"
             )
+            RadioGroup(selectedVehicle4, vehiclesData, "Vehicle 4")
 
-            DropdownMenu(
-                expanded = expanded4,
-                onDismissRequest = { expanded4 = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                spinnerData.filter { it != selectedData1.value && it != selectedData2.value && it != selectedData3.value }.forEach { item ->
-                    DropdownMenuItem(onClick = {
-                        selectedData4.value = item
-                        expanded4 = false
-                    }) {
-                        Text(text = item)
-                    }
+            Button(
+                onClick = {
+                    viewModel.postData(
+                        selectedPlanet1.value?.name ?: "",
+                        selectedPlanet2.value?.name ?: "",
+                        selectedPlanet3.value?.name ?: "",
+                        selectedPlanet4.value?.name ?: ""
+                    )
                 }
+            ) {
+                Text("Find Queen!")
             }
-        }
 
-        Button(
-            onClick = {
-                viewModel.postData(
-                    selectedData1.value,
-                    selectedData2.value,
-                    selectedData3.value,
-                    selectedData4.value
-                )
+            LaunchedEffect(Unit) {
+                viewModel.getPlanets()
+                viewModel.getVehicles()
             }
-        ) {
-            Text("Submit")
         }
     }
+}
 
-    LaunchedEffect(Unit) {
-        viewModel.getPlanets()
+@Composable
+fun RadioGroup(selectedVehicle: MutableState<VehicleResponse?>, vehiclesData: List<VehicleResponse>, label: String) {
+    Column {
+        Text(text = label)
+        vehiclesData.forEach { vehicle ->
+            if (vehicle.totalNumber > 0) {
+                Row {
+                    RadioButton(
+                        selected = selectedVehicle.value === vehicle,
+                        onClick = {
+                            selectedVehicle.value = vehicle
+                            vehicle.totalNumber -= 1
+                        }
+                    )
+                    Text(text = "${vehicle.name} (${vehicle.totalNumber} left)")
+                }
+            } else {
+                Row {
+                    RadioButton(
+                        selected = false,
+                        enabled = false,
+                        onClick = {}
+                    )
+                    Text(text = "${vehicle.name} (0 left)", color = Color.Gray)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun Dropdown(selectedData: MutableState<PlanetsResponse?>, spinnerData: List<PlanetsResponse>, label: String) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .width(200.dp)
+            .clickable(onClick = { expanded = true })
+            .background(Color.LightGray)
+    ) {
+        Text(
+            text = if (selectedData.value == null) label else selectedData.value!!.name,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            spinnerData.filter { it !== selectedData.value }.forEach { item ->
+                DropdownMenuItem(onClick = {
+                    selectedData.value = item
+                    expanded = false
+                }) {
+                    Text(text = item.name)
+                }
+            }
+        }
     }
 }
