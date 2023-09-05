@@ -32,6 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.git.falcone.model.data.request.Planets
+import com.git.falcone.model.data.request.RequestData
+import com.git.falcone.model.data.request.Vehicles
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
 
@@ -41,6 +44,7 @@ fun SpinnerScreen() {
     val viewModel: FindFalconeViewModel = viewModel()
     val planetsData = viewModel.planetsLiveData.value ?: emptyList()
     val vehiclesData = viewModel.vehiclesLiveData.value ?: emptyList()
+    val authKey = viewModel.authKeyLiveData.value.toString() ?: ""
 
     val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle1 = remember { mutableStateOf<VehicleResponse?>(null) }
@@ -97,12 +101,22 @@ fun SpinnerScreen() {
 
             Button(
                 onClick = {
-                    viewModel.postData(
-                        selectedPlanet1.value?.name ?: "",
-                        selectedPlanet2.value?.name ?: "",
-                        selectedPlanet3.value?.name ?: "",
-                        selectedPlanet4.value?.name ?: ""
+                    val planetNames = listOf(
+                        Planets(selectedPlanet1.value?.name ?: ""),
+                        Planets(selectedPlanet2.value?.name ?: ""),
+                        Planets(selectedPlanet3.value?.name ?: ""),
+                        Planets(selectedPlanet4.value?.name ?: "")
                     )
+                    val vehicles = listOf(
+                        Vehicles(selectedVehicle1.value?.name ?: ""),
+                        Vehicles(selectedVehicle2.value?.name ?: ""),
+                        Vehicles(selectedVehicle3.value?.name ?: ""),
+                        Vehicles(selectedVehicle4.value?.name ?: "")
+                    )
+
+                    val requestData = RequestData(authKey, planetNames, vehicles)
+
+                    viewModel.findQueen(requestData)
                 }
             ) {
                 Text("Find Queen!")
