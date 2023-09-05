@@ -8,10 +8,12 @@ import com.git.falcone.model.data.response.VehicleResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Headers
 import retrofit2.http.POST
 
 interface ApiService {
 
+    @Headers("Accept: application/json")
     @POST("token")
     suspend fun getAuthKey(): Response<AuthKeyResponse>
 

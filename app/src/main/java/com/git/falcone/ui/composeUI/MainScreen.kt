@@ -24,6 +24,7 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -37,13 +38,15 @@ import com.git.falcone.model.data.request.RequestData
 import com.git.falcone.model.data.request.Vehicles
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
+import com.git.falcone.model.data.response.vehiclesData
 
 
 @Composable
-fun SpinnerScreen() {
+fun MainScreen() {
     val viewModel: FindFalconeViewModel = viewModel()
     val planetsData = viewModel.planetsLiveData.value ?: emptyList()
-    val vehiclesData = viewModel.vehiclesLiveData.value ?: emptyList()
+//    val vehiclesData = viewModel.vehiclesLiveData.value ?: emptyList()
+    val vehiclesData = vehiclesData
     val authKey = viewModel.authKeyLiveData.value.toString() ?: ""
 
     val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
@@ -69,13 +72,15 @@ fun SpinnerScreen() {
         ) {
             Text(
                 text = "Selected items: ${selectedPlanet1.value?.name ?: ""}, ${selectedPlanet2.value?.name ?: ""}, ${selectedPlanet3.value?.name ?: ""}, ${selectedPlanet4.value?.name ?: ""}",
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier.padding(bottom = 8.dp),
+                color = MaterialTheme.colors.secondary
             )
 
             Dropdown(
                 selectedPlanet1,
                 planetsData.filter { it !== selectedPlanet2.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
-                "Select a Planet")
+                "Select a Planet"
+            )
             RadioGroup(selectedVehicle1, vehiclesData, "Vehicle 1")
 
             Dropdown(
@@ -123,6 +128,7 @@ fun SpinnerScreen() {
             }
 
             LaunchedEffect(Unit) {
+                viewModel.getAuthKey()
                 viewModel.getPlanets()
                 viewModel.getVehicles()
             }
@@ -131,9 +137,16 @@ fun SpinnerScreen() {
 }
 
 @Composable
-fun RadioGroup(selectedVehicle: MutableState<VehicleResponse?>, vehiclesData: List<VehicleResponse>, label: String) {
+fun RadioGroup(
+    selectedVehicle: MutableState<VehicleResponse?>,
+    vehiclesData: List<VehicleResponse>,
+    label: String
+) {
     Column {
-        Text(text = label)
+        Text(
+            text = label,
+            color = MaterialTheme.colors.onSecondary
+        )
         vehiclesData.forEach { vehicle ->
             if (vehicle.totalNumber > 0) {
                 Row {
@@ -157,11 +170,24 @@ fun RadioGroup(selectedVehicle: MutableState<VehicleResponse?>, vehiclesData: Li
                 }
             }
         }
+        DisposableEffect(selectedVehicle.value) {
+            val previousVehicle = selectedVehicle.value
+            onDispose {
+                previousVehicle?.totalNumber?.plus(1)?.let {
+                    previousVehicle.totalNumber = it
+                }
+            }
+        }
     }
 }
 
+
 @Composable
-fun Dropdown(selectedData: MutableState<PlanetsResponse?>, spinnerData: List<PlanetsResponse>, label: String) {
+fun Dropdown(
+    selectedData: MutableState<PlanetsResponse?>,
+    spinnerData: List<PlanetsResponse>,
+    label: String
+) {
     var expanded by remember { mutableStateOf(false) }
 
     Box(
