@@ -1,29 +1,31 @@
 package com.git.falcone.ui
 
+import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.git.falcone.model.Repository
-import com.git.falcone.model.data.apiService.ApiService
+import com.git.falcone.model.data.repository.Repository
 import com.git.falcone.model.data.request.RequestData
 import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.FoundQueenResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
 
+@HiltViewModel
 class FindFalconeViewModel @Inject constructor(
     private val repository: Repository
-): ViewModel() {
+): ViewModel(){
 
-    private lateinit var planetsLiveData: MutableLiveData<List<PlanetsResponse>>
-    private lateinit var vehiclesLiveData: MutableLiveData<List<VehicleResponse>>
-    private lateinit var authKeyLiveData: MutableLiveData<Any>
-    private lateinit var queenLiveData: MutableLiveData<FoundQueenResponse>
-
+    val planetsLiveData = mutableStateOf<List<PlanetsResponse>>(emptyList())
+    val vehiclesLiveData = mutableStateOf<List<VehicleResponse>>(emptyList())
+    val authKeyLiveData = mutableStateOf<AuthKeyResponse?>(null)
+    val queenLiveData = mutableStateOf<FoundQueenResponse?>(null)
     fun getAuthKey(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -55,7 +57,7 @@ class FindFalconeViewModel @Inject constructor(
                     vehiclesLiveData.value = it
                 }
             }catch (e: Exception){
-
+                Log.e("ViewModel vehicles", "getVehicles: ${e.message}", )
             }
         }
     }
@@ -70,5 +72,9 @@ class FindFalconeViewModel @Inject constructor(
 
             }
         }
+    }
+
+    fun postData(value: String, value1: String, value2: String, value3: String) {
+
     }
 }

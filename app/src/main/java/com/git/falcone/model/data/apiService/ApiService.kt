@@ -12,7 +12,7 @@ import retrofit2.http.POST
 
 interface ApiService {
 
-    @POST("find")
+    @POST("token")
     suspend fun getAuthKey(): Response<AuthKeyResponse>
 
     @GET("vehicles")
@@ -21,7 +21,7 @@ interface ApiService {
     @GET("planets")
     suspend fun getPlanets(): Response<List<PlanetsResponse>>
 
-    @POST
+    @POST("find")
     suspend fun findQueen(
         @Body request: RequestData
     ): Response<FoundQueenResponse>

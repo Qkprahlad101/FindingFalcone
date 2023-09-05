@@ -1,7 +1,8 @@
-package com.git.falcone.model
+package com.git.falcone.model.data.repository
 
 import com.git.falcone.model.data.apiService.ApiService
 import com.git.falcone.model.data.request.RequestData
+import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.FoundQueenResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
@@ -41,11 +42,11 @@ class Repository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun getAuthKey(): Flow<Any> {
+    suspend fun getAuthKey(): Flow<AuthKeyResponse?> {
         return flow {
             val response = apiService.getAuthKey()
             if (response.isSuccessful) {
-                val key = response.body() ?: ""
+                val key = response.body() ?: AuthKeyResponse( key = "")
                 emit(key)
             } else {
                 val statusCode = response.code()
@@ -66,6 +67,4 @@ class Repository @Inject constructor(
             }
         }.flowOn(Dispatchers.IO)
     }
-
-
 }

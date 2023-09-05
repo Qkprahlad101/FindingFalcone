@@ -1,6 +1,6 @@
 package com.git.falcone.di
 
-import com.git.falcone.model.Repository
+import com.git.falcone.model.data.repository.Repository
 import com.git.falcone.model.data.apiService.ApiService
 import com.git.falcone.ui.FindFalconeViewModel
 import dagger.Module
