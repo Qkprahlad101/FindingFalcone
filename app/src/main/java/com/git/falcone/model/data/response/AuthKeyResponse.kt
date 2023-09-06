@@ -1,5 +1,7 @@
 package com.git.falcone.model.data.response
 
+import com.google.gson.annotations.SerializedName
+
 data class AuthKeyResponse(
-    val key: String?
+    @SerializedName("token") val key: String
 )

@@ -45,7 +45,7 @@ import com.git.falcone.model.data.response.vehiclesData
 fun MainScreen() {
     val viewModel: FindFalconeViewModel = viewModel()
     val planetsData = viewModel.planetsLiveData.value ?: emptyList()
-//    val vehiclesData = viewModel.vehiclesLiveData.value ?: emptyList()
+    val selectedGlobalVehicle = remember{ mutableStateOf<VehicleResponse?>(null) }
     val vehiclesData = vehiclesData
     val authKey = viewModel.authKeyLiveData.value.toString() ?: ""
 
@@ -127,6 +127,8 @@ fun MainScreen() {
                 Text("Find Queen!")
             }
 
+            Text(text = viewModel.queenLiveData.value.toString() ?: "", modifier = Modifier.padding(top = 24.dp))
+
             LaunchedEffect(Unit) {
                 viewModel.getAuthKey()
                 viewModel.getPlanets()
@@ -147,13 +149,26 @@ fun RadioGroup(
             text = label,
             color = MaterialTheme.colors.onSecondary
         )
-        vehiclesData.forEach { vehicle ->
+        vehiclesData.forEachIndexed { index, vehicle ->
             if (vehicle.totalNumber > 0) {
                 Row {
                     RadioButton(
                         selected = selectedVehicle.value === vehicle,
                         onClick = {
+                            // Increase total number of previously selected vehicle
+                            selectedVehicle.value?.let { prevSelected ->
+                                if (prevSelected != vehicle) {
+                                    prevSelected.totalNumber += 1
+                                }
+                            }
+                            // Update selected vehicle
                             selectedVehicle.value = vehicle
+                            // Update total number of selected vehicle in all dropdowns
+                            vehiclesData.forEach { dropdownVehicle ->
+                                if (dropdownVehicle != vehicle) {
+                                    dropdownVehicle.totalNumber += 1
+                                }
+                            }
                             vehicle.totalNumber -= 1
                         }
                     )
@@ -180,6 +195,7 @@ fun RadioGroup(
         }
     }
 }
+
 
 
 @Composable

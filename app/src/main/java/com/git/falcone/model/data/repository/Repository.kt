@@ -42,11 +42,11 @@ class Repository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun getAuthKey(): Flow<AuthKeyResponse?> {
+    suspend fun getAuthKey(): Flow<AuthKeyResponse> {
         return flow {
             val response = apiService.getAuthKey()
             if (response.isSuccessful) {
-                val key = response.body() ?: AuthKeyResponse( key = "")
+                val key = response.body() ?: AuthKeyResponse(key = "")
                 emit(key)
             } else {
                 val statusCode = response.code()

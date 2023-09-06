@@ -5,6 +5,7 @@ import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.FoundQueenResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
