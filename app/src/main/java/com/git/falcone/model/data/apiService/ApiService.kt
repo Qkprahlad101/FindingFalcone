@@ -24,8 +24,9 @@ interface ApiService {
     @GET("planets")
     suspend fun getPlanets(): Response<List<PlanetsResponse>>
 
+    @Headers("Accept: application/json")
     @POST("find")
     suspend fun findQueen(
-        @Body request: RequestData
+        @Body request: String
     ): Response<FoundQueenResponse>
 }

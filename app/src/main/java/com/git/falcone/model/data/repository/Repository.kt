@@ -55,15 +55,18 @@ class Repository @Inject constructor(
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun findQueen(request: RequestData): Flow<FoundQueenResponse?> {
+    suspend fun findQueen(request: String): Flow<FoundQueenResponse?> {
         return flow {
             val response = apiService.findQueen(request)
             if (response.isSuccessful) {
-                val found = response.body() ?: throw Exception("Failed to find Queen")
-                emit(found)
+                val found = response.body()
+                if (found?.status == "success") {
+                    emit(found)
+                } else {
+                    throw Exception("Failed to find Queen")
+                }
             } else {
-                val statusCode = response.code()
-                throw Exception("Failed to find Queen, Status code: $statusCode")
+                throw Exception("Failed to find Queen, Status code: ${response.code()}")
             }
         }.flowOn(Dispatchers.IO)
     }

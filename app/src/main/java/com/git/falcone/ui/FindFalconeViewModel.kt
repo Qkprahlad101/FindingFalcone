@@ -61,7 +61,7 @@ class FindFalconeViewModel @Inject constructor(
         }
     }
 
-    fun findQueen(request: RequestData){
+    fun findQueen(request: String){
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.findQueen(request).collect{
