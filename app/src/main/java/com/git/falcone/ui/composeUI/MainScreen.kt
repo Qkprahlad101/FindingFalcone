@@ -40,7 +40,6 @@ import com.git.falcone.model.data.request.RequestData
 import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
-import com.git.falcone.model.data.response.vehiclesData
 import com.git.falcone.ui.composeUI.UiComponents.Screen
 import kotlinx.coroutines.launch
 
@@ -67,6 +66,14 @@ fun MainScreen(
     val selectedPlanet4 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle4 = remember { mutableStateOf<VehicleResponse?>(null) }
 
+
+    val remainingQuantities = remember { mutableStateListOf<Int>() }
+
+    LaunchedEffect(vehiclesData) {
+        remainingQuantities.clear()
+        remainingQuantities.addAll(vehiclesData.map { it.totalNumber }.toMutableList())
+    }
+
     val remainingQuantities1 = remember { mutableStateListOf<Int>() }
     val remainingQuantities2 = remember { mutableStateListOf<Int>() }
     val remainingQuantities3 = remember { mutableStateListOf<Int>() }
@@ -78,12 +85,11 @@ fun MainScreen(
         remainingQuantities3.clear()
         remainingQuantities4.clear()
 
-        remainingQuantities1.addAll(vehiclesData.map { it.totalNumber })
-        remainingQuantities2.addAll(vehiclesData.map { it.totalNumber })
-        remainingQuantities3.addAll(vehiclesData.map { it.totalNumber })
-        remainingQuantities4.addAll(vehiclesData.map { it.totalNumber })
+        remainingQuantities1.addAll(vehiclesData.map { it.totalNumber }.toMutableList())
+        remainingQuantities2.addAll(vehiclesData.map { it.totalNumber }.toMutableList())
+        remainingQuantities3.addAll(vehiclesData.map { it.totalNumber }.toMutableList())
+        remainingQuantities4.addAll(vehiclesData.map { it.totalNumber }.toMutableList())
     }
-
 
     val scope = rememberCoroutineScope()
     Surface(
@@ -100,7 +106,9 @@ fun MainScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.Gray)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Gray)
             ) {
                 // Header
                 Row(
@@ -142,7 +150,7 @@ fun MainScreen(
                 vehiclesData ?: emptyList(),
                 "Vehicle 1",
                 0,
-                remainingQuantities1,
+                remainingQuantities,
                 selectedPlanet1.value
             )
 
@@ -156,9 +164,10 @@ fun MainScreen(
                 vehiclesData ?: emptyList(),
                 "Vehicle 2",
                 1,
-                remainingQuantities2,
+                remainingQuantities,
                 selectedPlanet2.value
             )
+
 
             Dropdown(
                 selectedPlanet3,
@@ -170,7 +179,7 @@ fun MainScreen(
                 vehiclesData ?: emptyList(),
                 "Vehicle 3",
                 2,
-                remainingQuantities3,
+                remainingQuantities,
                 selectedPlanet3.value
             )
 
@@ -184,7 +193,7 @@ fun MainScreen(
                 vehiclesData ?: emptyList(),
                 "Vehicle 4",
                 3,
-                remainingQuantities4,
+                remainingQuantities,
                 selectedPlanet4.value
             )
 
@@ -228,7 +237,8 @@ fun MainScreen(
                                                 ?: vehiclesData?.find { it.name == selectedVehicle3.value?.name }
                                                 ?: vehiclesData?.find { it.name == selectedVehicle4.value?.name }
                                         if (vehicle != null) {
-                                            viewModel.timeTaken.value = planet.distance / vehicle.speed
+                                            viewModel.timeTaken.value =
+                                                planet.distance / vehicle.speed
                                         }
                                     }
                                 }
@@ -237,7 +247,11 @@ fun MainScreen(
                         }
                         navController.navigate(Screen.ResultScreen.route)
                     } else {
-                        Toast.makeText(applicationContext, "Please select all fields!!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            applicationContext,
+                            "Please select all fields!!",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             ) {
@@ -252,13 +266,14 @@ fun MainScreen(
 
             // Footer
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
                     .background(Color.Gray)
                     .padding(top = 16.dp, bottom = 16.dp)
             ) {
-                    Text(
-                        text = "Coding Problem - www.geektrust.in/finding-falcone"
-                    )
+                Text(
+                    text = "Coding Problem - www.geektrust.in/finding-falcone"
+                )
             }
         }
     }
@@ -288,10 +303,19 @@ fun RadioGroup(
                         RadioButton(
                             selected = selectedVehicle.value === vehicle,
                             onClick = {
-                                selectedVehicle.value = vehicle
+                                if (selectedVehicle.value != vehicle) {
+                                    // Restore the remaining quantity of previously selected vehicle
+                                    selectedVehicle.value?.let { prevSelectedVehicle ->
+                                        val prevSelectedIndex =
+                                            vehiclesData.indexOf(prevSelectedVehicle)
+                                        remainingQuantities[prevSelectedIndex] += 1
+                                    }
 
-                                remainingQuantities[vehicleIndex] -= 1
-                                remainingQuantities[index] += 1
+                                    selectedVehicle.value = vehicle
+
+                                    remainingQuantities[vehicleIndex] -= 1
+//                                    remainingQuantities[index] -= 1
+                                }
                             }
                         )
                         Text(text = "${vehicle.name} (${remainingQuantities[index]} left)")
@@ -304,7 +328,7 @@ fun RadioGroup(
                             onClick = {}
                         )
                         Text(
-                            text = "${vehicle.name} (0 left)",
+                            text = "${vehicle.name} (${remainingQuantities[index]} left)",
                             color = if (isVehicleSelectable) Color.Black else Color.Gray
                         )
                     }
@@ -313,7 +337,6 @@ fun RadioGroup(
         }
     }
 }
-
 
 @Composable
 fun Dropdown(
