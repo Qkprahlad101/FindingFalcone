@@ -85,16 +85,46 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(bottom = 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Gray)
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Find Falcone",
+                        style = MaterialTheme.typography.h5
+                    )
+                    Text(
+                        text = "Reset /",
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.secondary
+                    )
+                    Text(
+                        text = "GeekTrust Home",
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.secondary
+                    )
+
+                }
+            }
+
             Text(
-                text = "Selected items: ${selectedPlanet1.value?.name ?: ""}, ${selectedPlanet2.value?.name ?: ""}, ${selectedPlanet3.value?.name ?: ""}, ${selectedPlanet4.value?.name ?: ""}",
+                text = "Selected Planets: ${selectedPlanet1.value?.name ?: ""}, ${selectedPlanet2.value?.name ?: ""}, ${selectedPlanet3.value?.name ?: ""}, ${selectedPlanet4.value?.name ?: ""}",
                 modifier = Modifier.padding(bottom = 8.dp),
                 color = MaterialTheme.colors.secondary
             )
@@ -215,6 +245,15 @@ fun MainScreen(
                 viewModel.getAuthKey()
                 viewModel.getPlanets()
                 viewModel.getVehicles()
+            }
+
+            // Footer
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Gray)
+            ) {
+                    Text(
+                        text = "Coding Problem - www.geektrust.in/finding-falcone"
+                    )
             }
         }
     }
