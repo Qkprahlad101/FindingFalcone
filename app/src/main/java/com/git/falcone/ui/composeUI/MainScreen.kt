@@ -40,7 +40,6 @@ import com.git.falcone.model.data.request.RequestData
 import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
-import com.git.falcone.ui.composeUI.UiComponents.Screen
 import kotlinx.coroutines.launch
 
 
@@ -314,7 +313,6 @@ fun RadioGroup(
                                     selectedVehicle.value = vehicle
 
                                     remainingQuantities[vehicleIndex] -= 1
-//                                    remainingQuantities[index] -= 1
                                 }
                             }
                         )

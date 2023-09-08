@@ -12,7 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.git.falcone.ui.composeUI.MainScreen
 import com.git.falcone.ui.composeUI.ResultScreen
 import dagger.hilt.android.AndroidEntryPoint
-import com.git.falcone.ui.composeUI.UiComponents.Screen
+import com.git.falcone.ui.composeUI.Screen
 
 @AndroidEntryPoint
 class EntryPointActivity : ComponentActivity() {
