@@ -1,15 +1,9 @@
 package com.git.falcone.model.data.request
 
+import com.google.gson.annotations.SerializedName
+
 data class RequestData(
-    val token: String,
-    val planet_names: List<Planets>,
-    val vehicles: List<Vehicles>
-)
-
-data class Planets(
-    val name: String
-)
-
-data class Vehicles(
-    val name: String
+    @SerializedName("token") val token: String,
+    @SerializedName("planet_names") val planetNames: List<String>,
+    @SerializedName("vehicle_names") val vehicleNames: List<String>
 )

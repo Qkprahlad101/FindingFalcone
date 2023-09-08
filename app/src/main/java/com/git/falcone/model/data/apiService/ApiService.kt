@@ -9,6 +9,7 @@ import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
@@ -24,9 +25,11 @@ interface ApiService {
     @GET("planets")
     suspend fun getPlanets(): Response<List<PlanetsResponse>>
 
-    @Headers("Accept: application/json")
+
+    @Headers("Accept: application/json", "Content-Type: application/json")
     @POST("find")
     suspend fun findQueen(
-        @Body request: String
+        @Body request: RequestData
     ): Response<FoundQueenResponse>
+
 }

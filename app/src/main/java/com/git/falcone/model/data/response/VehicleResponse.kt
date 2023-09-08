@@ -2,10 +2,12 @@ package com.git.falcone.model.data.response
 
 data class VehicleResponse(
     val name: String,
-    var totalNumber: Int,
+    val totalNumber: Int,
     val maxDistance: Int,
     val speed: Int
-)
+) {
+    var remainingNumber: Int = totalNumber
+}
 
 val vehiclesData = listOf(
     VehicleResponse("Space pod", 2, 200, 2),

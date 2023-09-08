@@ -1,5 +1,6 @@
 package com.git.falcone.ui.composeUI
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -27,21 +28,23 @@ import androidx.compose.material.Surface
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.git.falcone.model.data.request.Planets
 import com.git.falcone.model.data.request.RequestData
-import com.git.falcone.model.data.request.Vehicles
 import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
-import com.git.falcone.model.data.response.vehiclesData
-import org.json.JSONArray
-import org.json.JSONObject
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -59,16 +62,30 @@ fun MainScreen() {
     val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle1 = remember { mutableStateOf<VehicleResponse?>(null) }
     val numberOfSelectedVehicle1 = remember { mutableStateOf(vehiclesData[0].totalNumber) }
-    val numberOfSelectedVehicle2 = remember { mutableStateOf(vehiclesData[1].totalNumber) }
-    val numberOfSelectedVehicle3 = remember { mutableStateOf(vehiclesData[2].totalNumber) }
-    val numberOfSelectedVehicle4 = remember { mutableStateOf(vehiclesData[3].totalNumber) }
+
     val selectedPlanet2 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle2 = remember { mutableStateOf<VehicleResponse?>(null) }
+    val numberOfSelectedVehicle2 = remember { mutableStateOf(vehiclesData[1].totalNumber) }
+
     val selectedPlanet3 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle3 = remember { mutableStateOf<VehicleResponse?>(null) }
+    val numberOfSelectedVehicle3 = remember { mutableStateOf(vehiclesData[2].totalNumber) }
+
     val selectedPlanet4 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle4 = remember { mutableStateOf<VehicleResponse?>(null) }
+    val numberOfSelectedVehicle4 = remember { mutableStateOf(vehiclesData[3].totalNumber) }
 
+    val remainingQuantities1 =
+        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
+    val remainingQuantities2 =
+        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
+    val remainingQuantities3 =
+        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
+    val remainingQuantities4 =
+        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
+
+    var time = 0
+    val scope = rememberCoroutineScope()
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -92,28 +109,28 @@ fun MainScreen() {
                 planetsData.filter { it !== selectedPlanet2.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select a Planet"
             )
-            RadioGroup(selectedVehicle1, vehiclesData, "Vehicle 1", numberOfSelectedVehicle1)
+            RadioGroup(selectedVehicle1, vehiclesData, "Vehicle 1", 0, remainingQuantities1)
 
             Dropdown(
                 selectedPlanet2,
                 planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select another Planet"
             )
-            RadioGroup(selectedVehicle2, vehiclesData, "Vehicle 2", numberOfSelectedVehicle2)
+            RadioGroup(selectedVehicle2, vehiclesData, "Vehicle 2", 1, remainingQuantities2)
 
             Dropdown(
                 selectedPlanet3,
                 planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet4.value },
                 "Select a third Planet"
             )
-            RadioGroup(selectedVehicle3, vehiclesData, "Vehicle 3", numberOfSelectedVehicle3)
+            RadioGroup(selectedVehicle3, vehiclesData, "Vehicle 3", 2, remainingQuantities3)
 
             Dropdown(
                 selectedPlanet4,
                 planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet3.value },
                 "Select a fourth Planet"
             )
-            RadioGroup(selectedVehicle4, vehiclesData, "Vehicle 4", numberOfSelectedVehicle4)
+            RadioGroup(selectedVehicle4, vehiclesData, "Vehicle 4", 3, remainingQuantities4)
 
             Button(
                 onClick = {
@@ -128,18 +145,53 @@ fun MainScreen() {
                         selectedVehicle1.value?.name,
                         selectedVehicle2.value?.name,
                         selectedVehicle3.value?.name,
-                        selectedVehicle4.value?.name
+                        selectedVehicle4.value?.name,
                     )
 
+                    val moshi = Moshi.Builder()
+                        .add(KotlinJsonAdapterFactory())
+                        .build()
 
-                    val convertedJson = JSONObject().apply {
-                        put("token", authKey.key)
-                        put("planet_names", JSONArray(planets))
-                        put("vehicle_names", JSONArray(vehicles))
+                    val adapter = moshi.adapter(RequestData::class.java)
+                    val request = RequestData(
+                        authKey.key,
+                        listOf(
+                            selectedPlanet1.value?.name ?: "",
+                            selectedPlanet2.value?.name ?: "",
+                            selectedPlanet3.value?.name ?: "",
+                            selectedPlanet4.value?.name ?: ""
+                        ),
+                        listOf(
+                            selectedVehicle1.value?.name ?: "",
+                            selectedVehicle2.value?.name ?: "",
+                            selectedVehicle3.value?.name ?: "",
+                            selectedVehicle4.value?.name ?: ""
+                        )
+                    )
+//                    val json = adapter.toJson(request)
+//                    viewModel.findQueen(request)
+
+
+                    scope.launch {
+                        viewModel.findQueen(request).collect { response ->
+                            val planetName = response?.planetName
+                            if (planetName != null) {
+                                val planet = planetsData.find { it.name == planetName }
+                                if (planet != null) {
+                                    val vehicle =
+                                        vehiclesData.find { it.name == selectedVehicle1.value?.name }
+                                            ?: vehiclesData.find { it.name == selectedVehicle2.value?.name }
+                                            ?: vehiclesData.find { it.name == selectedVehicle3.value?.name }
+                                            ?: vehiclesData.find { it.name == selectedVehicle4.value?.name }
+                                    if (vehicle != null) {
+                                        time = planet.distance / vehicle.speed
+                                    }
+                                }
+                            }
+                            viewModel.queenLiveData.value = response
+                        }
+
                     }
-
-                    val convertedJsonString = convertedJson.toString()
-                    viewModel.findQueen(convertedJsonString)
 
                 }
             ) {
@@ -147,7 +199,12 @@ fun MainScreen() {
             }
 
             Text(
-                text = viewModel.queenLiveData.value.toString() ?: "",
+                text = viewModel.queenLiveData.value?.planetName ?: "",
+                modifier = Modifier.padding(top = 24.dp)
+            )
+
+            Text(
+                text = "Time Taken: $time",
                 modifier = Modifier.padding(top = 24.dp)
             )
 
@@ -160,44 +217,34 @@ fun MainScreen() {
     }
 }
 
+
 @Composable
 fun RadioGroup(
     selectedVehicle: MutableState<VehicleResponse?>,
     vehiclesData: List<VehicleResponse>,
     label: String,
-    numberOfSelectedVehicle: MutableState<Int>
+    vehicleIndex: Int,
+    remainingQuantities: MutableList<Int>
 ) {
     Column {
         Text(
             text = label,
             color = MaterialTheme.colors.onSecondary
         )
-        vehiclesData.forEach { vehicle ->
-            if (vehicle.totalNumber > 0) {
+
+        vehiclesData.forEachIndexed { index, vehicle ->
+            if (remainingQuantities[index] > 0) {
                 Row {
                     RadioButton(
                         selected = selectedVehicle.value === vehicle,
                         onClick = {
-                            // Increase total number of previously selected vehicle
-                            selectedVehicle.value?.let { prevSelected ->
-                                if (prevSelected != vehicle) {
-                                    prevSelected.totalNumber += 1
-                                    numberOfSelectedVehicle.value += 1
-                                }
-                            }
-                            // Update selected vehicle
                             selectedVehicle.value = vehicle
-                            // Update total number of selected vehicle in all dropdowns
-                            vehiclesData.forEach { dropdownVehicle ->
-                                if (dropdownVehicle != vehicle) {
-                                    dropdownVehicle.totalNumber += 1
-                                }
-                            }
-                            vehicle.totalNumber -= 1
-                            numberOfSelectedVehicle.value -= 1
+
+                            remainingQuantities[vehicleIndex] -= 1
+                            remainingQuantities[index] += 1
                         }
                     )
-                    Text(text = "${vehicle.name} (${vehicle.totalNumber} left)")
+                    Text(text = "${vehicle.name} (${remainingQuantities[index]} left)")
                 }
             } else {
                 Row {
@@ -207,15 +254,6 @@ fun RadioGroup(
                         onClick = {}
                     )
                     Text(text = "${vehicle.name} (0 left)", color = Color.Gray)
-                }
-            }
-        }
-        DisposableEffect(selectedVehicle.value) {
-            val previousVehicle = selectedVehicle.value
-            onDispose {
-                previousVehicle?.totalNumber?.plus(1)?.let {
-                    previousVehicle.totalNumber = it
-                    numberOfSelectedVehicle.value -= 1
                 }
             }
         }

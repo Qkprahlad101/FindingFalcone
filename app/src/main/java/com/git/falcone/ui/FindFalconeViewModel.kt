@@ -12,6 +12,8 @@ import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -25,6 +27,7 @@ class FindFalconeViewModel @Inject constructor(
     val vehiclesLiveData = mutableStateOf<List<VehicleResponse>>(emptyList())
     val authKeyLiveData = mutableStateOf<AuthKeyResponse?>(null)
     val queenLiveData = mutableStateOf<FoundQueenResponse?>(null)
+    var reponse = FoundQueenResponse(planetName = "", status = "")
     fun getAuthKey(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -61,16 +64,22 @@ class FindFalconeViewModel @Inject constructor(
         }
     }
 
-    fun findQueen(request: String){
-        viewModelScope.launch(Dispatchers.IO) {
+    fun findQueen(request: RequestData): Flow<FoundQueenResponse> {
+        return flow {
+            var response: FoundQueenResponse? = null
             try {
-                repository.findQueen(request).collect{
+                repository.findQueen(request).collect {
+                    response = it ?: FoundQueenResponse(planetName = "", status = "Queen Not Found")
                     queenLiveData.value = it
                 }
-            }catch (e: Exception){
-
+            } catch (e: Exception) {
+                Log.d("findQueen", "error: ${e.message} $")
+                response = FoundQueenResponse(planetName = e.message, status = "Queen not found!!")
+                queenLiveData.value = response
             }
+            queenLiveData.value?.let { emit(it) }
         }
     }
+
 
 }
