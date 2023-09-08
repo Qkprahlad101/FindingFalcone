@@ -27,13 +27,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGitHubRepository(apiService: ApiService): Repository {
+    fun provideRepository(apiService: ApiService): Repository {
         return Repository(apiService)
     }
 
     @Provides
     @Singleton
-    fun provideClosedPullRequestsViewModel(repository: Repository): FindFalconeViewModel {
+    fun provideViewModel(repository: Repository): FindFalconeViewModel {
         return FindFalconeViewModel(repository)
     }
 }

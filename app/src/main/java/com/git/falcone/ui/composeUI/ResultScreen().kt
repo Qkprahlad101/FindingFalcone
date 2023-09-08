@@ -30,12 +30,12 @@ fun ResultScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = if (viewModel.queenLiveData.value != null) "Queen was found at ${viewModel.queenLiveData.value?.planetName}" else "",
+                text = if (viewModel.queenLiveData.value?.status != "Queen not Found!!") "Queen was found at ${viewModel.queenLiveData.value?.planetName}" else "Queen not Found!!",
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             Text(
-                text = "Time Taken to find Queen: ${viewModel.timeTaken.value}",
+                text = if (viewModel.queenLiveData.value?.status != "Queen not Found!!") "Time Taken to find Queen: ${viewModel.timeTaken.value}" else "",
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
