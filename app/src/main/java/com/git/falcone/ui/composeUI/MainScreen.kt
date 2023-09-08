@@ -40,6 +40,7 @@ import com.git.falcone.model.data.request.RequestData
 import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
+import com.git.falcone.model.data.response.vehiclesData
 import com.git.falcone.ui.composeUI.UiComponents.Screen
 import kotlinx.coroutines.launch
 
@@ -66,14 +67,22 @@ fun MainScreen(
     val selectedPlanet4 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle4 = remember { mutableStateOf<VehicleResponse?>(null) }
 
-    val remainingQuantities1 =
-        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
-    val remainingQuantities2 =
-        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
-    val remainingQuantities3 =
-        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
-    val remainingQuantities4 =
-        remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
+    val remainingQuantities1 = remember { mutableStateListOf<Int>() }
+    val remainingQuantities2 = remember { mutableStateListOf<Int>() }
+    val remainingQuantities3 = remember { mutableStateListOf<Int>() }
+    val remainingQuantities4 = remember { mutableStateListOf<Int>() }
+
+    LaunchedEffect(vehiclesData) {
+        remainingQuantities1.clear()
+        remainingQuantities2.clear()
+        remainingQuantities3.clear()
+        remainingQuantities4.clear()
+
+        remainingQuantities1.addAll(vehiclesData.map { it.totalNumber })
+        remainingQuantities2.addAll(vehiclesData.map { it.totalNumber })
+        remainingQuantities3.addAll(vehiclesData.map { it.totalNumber })
+        remainingQuantities4.addAll(vehiclesData.map { it.totalNumber })
+    }
 
 
     val scope = rememberCoroutineScope()
