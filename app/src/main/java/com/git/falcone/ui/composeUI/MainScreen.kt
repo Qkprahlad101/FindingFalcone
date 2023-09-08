@@ -61,19 +61,15 @@ fun MainScreen() {
 
     val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle1 = remember { mutableStateOf<VehicleResponse?>(null) }
-    val numberOfSelectedVehicle1 = remember { mutableStateOf(vehiclesData[0].totalNumber) }
 
     val selectedPlanet2 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle2 = remember { mutableStateOf<VehicleResponse?>(null) }
-    val numberOfSelectedVehicle2 = remember { mutableStateOf(vehiclesData[1].totalNumber) }
 
     val selectedPlanet3 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle3 = remember { mutableStateOf<VehicleResponse?>(null) }
-    val numberOfSelectedVehicle3 = remember { mutableStateOf(vehiclesData[2].totalNumber) }
 
     val selectedPlanet4 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle4 = remember { mutableStateOf<VehicleResponse?>(null) }
-    val numberOfSelectedVehicle4 = remember { mutableStateOf(vehiclesData[3].totalNumber) }
 
     val remainingQuantities1 =
         remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
@@ -109,50 +105,59 @@ fun MainScreen() {
                 planetsData.filter { it !== selectedPlanet2.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select a Planet"
             )
-            RadioGroup(selectedVehicle1, vehiclesData, "Vehicle 1", 0, remainingQuantities1)
+            RadioGroup(
+                selectedVehicle1,
+                vehiclesData,
+                "Vehicle 1",
+                0,
+                remainingQuantities1,
+                selectedPlanet1.value
+            )
 
             Dropdown(
                 selectedPlanet2,
                 planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select another Planet"
             )
-            RadioGroup(selectedVehicle2, vehiclesData, "Vehicle 2", 1, remainingQuantities2)
+            RadioGroup(
+                selectedVehicle2,
+                vehiclesData,
+                "Vehicle 2",
+                1,
+                remainingQuantities2,
+                selectedPlanet2.value
+            )
 
             Dropdown(
                 selectedPlanet3,
                 planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet4.value },
                 "Select a third Planet"
             )
-            RadioGroup(selectedVehicle3, vehiclesData, "Vehicle 3", 2, remainingQuantities3)
+            RadioGroup(
+                selectedVehicle3,
+                vehiclesData,
+                "Vehicle 3",
+                2,
+                remainingQuantities3,
+                selectedPlanet3.value
+            )
 
             Dropdown(
                 selectedPlanet4,
                 planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet3.value },
                 "Select a fourth Planet"
             )
-            RadioGroup(selectedVehicle4, vehiclesData, "Vehicle 4", 3, remainingQuantities4)
+            RadioGroup(
+                selectedVehicle4,
+                vehiclesData,
+                "Vehicle 4",
+                3,
+                remainingQuantities4,
+                selectedPlanet4.value
+            )
 
             Button(
                 onClick = {
-
-                    val planets = listOf(
-                        selectedPlanet1.value?.name,
-                        selectedPlanet2.value?.name,
-                        selectedPlanet3.value?.name,
-                        selectedPlanet4.value?.name
-                    )
-                    val vehicles = listOf(
-                        selectedVehicle1.value?.name,
-                        selectedVehicle2.value?.name,
-                        selectedVehicle3.value?.name,
-                        selectedVehicle4.value?.name,
-                    )
-
-                    val moshi = Moshi.Builder()
-                        .add(KotlinJsonAdapterFactory())
-                        .build()
-
-                    val adapter = moshi.adapter(RequestData::class.java)
                     val request = RequestData(
                         authKey.key,
                         listOf(
@@ -168,13 +173,10 @@ fun MainScreen() {
                             selectedVehicle4.value?.name ?: ""
                         )
                     )
-//                    val json = adapter.toJson(request)
-//                    viewModel.findQueen(request)
-
 
                     scope.launch {
                         viewModel.findQueen(request).collect { response ->
-                            val planetName = response?.planetName
+                            val planetName = response.planetName
                             if (planetName != null) {
                                 val planet = planetsData.find { it.name == planetName }
                                 if (planet != null) {
@@ -190,21 +192,19 @@ fun MainScreen() {
                             }
                             viewModel.queenLiveData.value = response
                         }
-
                     }
-
                 }
             ) {
                 Text("Find Queen!")
             }
 
             Text(
-                text = viewModel.queenLiveData.value?.planetName ?: "",
+                text = if(viewModel.queenLiveData.value != null) "Queen was found at ${viewModel.queenLiveData.value?.planetName}" else "",        //
                 modifier = Modifier.padding(top = 24.dp)
             )
 
             Text(
-                text = "Time Taken: $time",
+                text = "Time Taken to find Queen: $time",
                 modifier = Modifier.padding(top = 24.dp)
             )
 
@@ -224,7 +224,8 @@ fun RadioGroup(
     vehiclesData: List<VehicleResponse>,
     label: String,
     vehicleIndex: Int,
-    remainingQuantities: MutableList<Int>
+    remainingQuantities: MutableList<Int>,
+    selectedPlanet: PlanetsResponse?
 ) {
     Column {
         Text(
@@ -233,7 +234,9 @@ fun RadioGroup(
         )
 
         vehiclesData.forEachIndexed { index, vehicle ->
-            if (remainingQuantities[index] > 0) {
+            val isVehicleSelectable = selectedPlanet?.distance ?: 0 <= vehicle.maxDistance
+
+            if (remainingQuantities[index] > 0 && isVehicleSelectable) {
                 Row {
                     RadioButton(
                         selected = selectedVehicle.value === vehicle,
@@ -253,13 +256,15 @@ fun RadioGroup(
                         enabled = false,
                         onClick = {}
                     )
-                    Text(text = "${vehicle.name} (0 left)", color = Color.Gray)
+                    Text(
+                        text = "${vehicle.name} (0 left)",
+                        color = if (isVehicleSelectable) Color.Black else Color.Gray
+                    )
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun Dropdown(

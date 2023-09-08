@@ -59,9 +59,7 @@ class Repository @Inject constructor(
 
     fun findQueen(request: RequestData): Flow<FoundQueenResponse?> {
         return flow {
-            Log.d("findQueen", "request: $request")
             val response = apiService.findQueen(request)
-            Log.d("findQueen", "response: $response")
             try {
                 when (response.code()) {
                     200 -> {
@@ -69,7 +67,7 @@ class Repository @Inject constructor(
                         if (found?.status == "success" && found.planetName != null) {
                             emit(found)
                         } else {
-                            throw Exception("Failed to find Queen! Enter all fields!")
+                            throw Exception("Queen was not among those planets!")
                         }
                     }
                     400 -> throw Exception("Bad Request! Check your request data! ${response.body().toString()}")

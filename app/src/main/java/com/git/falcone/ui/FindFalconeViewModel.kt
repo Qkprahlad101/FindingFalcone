@@ -66,16 +66,12 @@ class FindFalconeViewModel @Inject constructor(
 
     fun findQueen(request: RequestData): Flow<FoundQueenResponse> {
         return flow {
-            var response: FoundQueenResponse? = null
             try {
                 repository.findQueen(request).collect {
-                    response = it ?: FoundQueenResponse(planetName = "", status = "Queen Not Found")
-                    queenLiveData.value = it
+                    queenLiveData.value = it ?: FoundQueenResponse(planetName = "", status = "Queen Not Found")
                 }
             } catch (e: Exception) {
-                Log.d("findQueen", "error: ${e.message} $")
-                response = FoundQueenResponse(planetName = e.message, status = "Queen not found!!")
-                queenLiveData.value = response
+                queenLiveData.value = FoundQueenResponse(planetName = e.message, status = "Queen not found!!")
             }
             queenLiveData.value?.let { emit(it) }
         }
