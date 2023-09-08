@@ -29,8 +29,9 @@ fun ResultScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            val result = viewModel.queenLiveData.value?.planetName
             Text(
-                text = if (viewModel.queenLiveData.value?.status != "Queen not Found!!") "Queen was found at ${viewModel.queenLiveData.value?.planetName}" else "Queen not Found!!",
+                text = if (viewModel.queenLiveData.value?.status != "Queen not Found!!") "Queen was found at $result" else "$result",
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 

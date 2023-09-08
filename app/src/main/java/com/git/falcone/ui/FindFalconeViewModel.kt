@@ -1,7 +1,5 @@
 package com.git.falcone.ui
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,7 +28,7 @@ class FindFalconeViewModel @Inject constructor(
     val authKeyLiveData = mutableStateOf<AuthKeyResponse?>(null)
     val queenLiveData = mutableStateOf<FoundQueenResponse?>(null)
     var timeTaken = mutableStateOf<Int>(0)
-    var reponse = FoundQueenResponse(planetName = "", status = "")
+
     fun getAuthKey(){
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -38,7 +36,7 @@ class FindFalconeViewModel @Inject constructor(
                     authKeyLiveData.value = it
                 }
             }catch (e: Exception){
-
+                authKeyLiveData.value = AuthKeyResponse(key = "")
             }
         }
     }
@@ -50,7 +48,7 @@ class FindFalconeViewModel @Inject constructor(
                     planetsLiveData.value = it
                 }
             }catch (e: Exception){
-
+                planetsLiveData.value = emptyList()
             }
         }
     }
@@ -62,7 +60,7 @@ class FindFalconeViewModel @Inject constructor(
                     vehiclesLiveData.value = it
                 }
             }catch (e: Exception){
-                Log.e("ViewModel vehicles", "getVehicles: ${e.message}", )
+                vehiclesLiveData.value = emptyList()
             }
         }
     }
@@ -79,4 +77,5 @@ class FindFalconeViewModel @Inject constructor(
             queenLiveData.value?.let { emit(it) }
         }
     }
+
 }

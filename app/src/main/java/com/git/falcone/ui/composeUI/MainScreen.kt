@@ -50,7 +50,7 @@ fun MainScreen(
     viewModel: FindFalconeViewModel,
     applicationContext: Context
 ) {
-    val planetsData = viewModel.planetsLiveData.value ?: emptyList()
+    val planetsData = viewModel.planetsLiveData.value
     val vehiclesData = listOf(
         VehicleResponse("Space pod", 2, 200, 2),
         VehicleResponse("Space rocket", 1, 300, 4),
@@ -58,7 +58,6 @@ fun MainScreen(
         VehicleResponse("Space ship", 2, 600, 10)
     )
     val authKey: AuthKeyResponse = viewModel.authKeyLiveData.value ?: AuthKeyResponse(key = "")
-
     val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle1 = remember { mutableStateOf<VehicleResponse?>(null) }
 
@@ -259,7 +258,6 @@ fun MainScreen(
     }
 }
 
-
 @Composable
 fun RadioGroup(
     selectedVehicle: MutableState<VehicleResponse?>,
@@ -276,7 +274,7 @@ fun RadioGroup(
         )
 
         vehiclesData.forEachIndexed { index, vehicle ->
-            val isVehicleSelectable = selectedPlanet?.distance ?: 0 <= vehicle.maxDistance
+            val isVehicleSelectable = (selectedPlanet?.distance ?: 0) <= vehicle.maxDistance
 
             if (remainingQuantities[index] > 0 && isVehicleSelectable) {
                 Row {
