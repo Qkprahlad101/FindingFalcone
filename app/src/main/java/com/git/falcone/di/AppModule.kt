@@ -1,11 +1,13 @@
 package com.git.falcone.di
 
+import android.content.Context
 import com.git.falcone.model.data.repository.Repository
 import com.git.falcone.model.data.apiService.ApiService
 import com.git.falcone.ui.FindFalconeViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

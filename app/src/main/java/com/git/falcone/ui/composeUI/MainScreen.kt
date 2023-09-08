@@ -1,5 +1,7 @@
 package com.git.falcone.ui.composeUI
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -43,7 +45,11 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun MainScreen(navController: NavController, viewModel: FindFalconeViewModel) {
+fun MainScreen(
+    navController: NavController,
+    viewModel: FindFalconeViewModel,
+    applicationContext: Context
+) {
     val planetsData = viewModel.planetsLiveData.value ?: emptyList()
     val vehiclesData = listOf(
         VehicleResponse("Space pod", 2, 200, 2),
@@ -151,47 +157,60 @@ fun MainScreen(navController: NavController, viewModel: FindFalconeViewModel) {
 
             Button(
                 onClick = {
-                    val request = RequestData(
-                        authKey.key,
-                        listOf(
-                            selectedPlanet1.value?.name ?: "",
-                            selectedPlanet2.value?.name ?: "",
-                            selectedPlanet3.value?.name ?: "",
-                            selectedPlanet4.value?.name ?: ""
-                        ),
-                        listOf(
-                            selectedVehicle1.value?.name ?: "",
-                            selectedVehicle2.value?.name ?: "",
-                            selectedVehicle3.value?.name ?: "",
-                            selectedVehicle4.value?.name ?: ""
-                        )
-                    )
+                    val allFieldsSelected = selectedPlanet1.value != null &&
+                            selectedPlanet2.value != null &&
+                            selectedPlanet3.value != null &&
+                            selectedPlanet4.value != null &&
+                            selectedVehicle1.value != null &&
+                            selectedVehicle2.value != null &&
+                            selectedVehicle3.value != null &&
+                            selectedVehicle4.value != null
 
-                    scope.launch {
-                        viewModel.findQueen(request).collect { response ->
-                            val planetName = response.planetName
-                            if (planetName != null) {
-                                val planet = planetsData.find { it.name == planetName }
-                                if (planet != null) {
-                                    val vehicle =
-                                        vehiclesData.find { it.name == selectedVehicle1.value?.name }
-                                            ?: vehiclesData.find { it.name == selectedVehicle2.value?.name }
-                                            ?: vehiclesData.find { it.name == selectedVehicle3.value?.name }
-                                            ?: vehiclesData.find { it.name == selectedVehicle4.value?.name }
-                                    if (vehicle != null) {
-                                        viewModel.timeTaken.value = planet.distance / vehicle.speed
+                    if (allFieldsSelected) {
+                        val request = RequestData(
+                            authKey.key,
+                            listOf(
+                                selectedPlanet1.value?.name ?: "",
+                                selectedPlanet2.value?.name ?: "",
+                                selectedPlanet3.value?.name ?: "",
+                                selectedPlanet4.value?.name ?: ""
+                            ),
+                            listOf(
+                                selectedVehicle1.value?.name ?: "",
+                                selectedVehicle2.value?.name ?: "",
+                                selectedVehicle3.value?.name ?: "",
+                                selectedVehicle4.value?.name ?: ""
+                            )
+                        )
+
+                        scope.launch {
+                            viewModel.findQueen(request).collect { response ->
+                                val planetName = response.planetName
+                                if (planetName != null) {
+                                    val planet = planetsData.find { it.name == planetName }
+                                    if (planet != null) {
+                                        val vehicle =
+                                            vehiclesData.find { it.name == selectedVehicle1.value?.name }
+                                                ?: vehiclesData.find { it.name == selectedVehicle2.value?.name }
+                                                ?: vehiclesData.find { it.name == selectedVehicle3.value?.name }
+                                                ?: vehiclesData.find { it.name == selectedVehicle4.value?.name }
+                                        if (vehicle != null) {
+                                            viewModel.timeTaken.value = planet.distance / vehicle.speed
+                                        }
                                     }
                                 }
+                                viewModel.queenLiveData.value = response
                             }
-                            viewModel.queenLiveData.value = response
                         }
+                        navController.navigate(Screen.ResultScreen.route)
+                    } else {
+                        Toast.makeText(applicationContext, "Please select all fields!!", Toast.LENGTH_SHORT).show()
                     }
-
-                    navController.navigate(Screen.ResultScreen.route)
                 }
             ) {
                 Text("Find Queen!")
             }
+
             LaunchedEffect(Unit) {
                 viewModel.getAuthKey()
                 viewModel.getPlanets()

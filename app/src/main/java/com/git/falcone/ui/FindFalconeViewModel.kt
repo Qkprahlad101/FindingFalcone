@@ -1,6 +1,7 @@
 package com.git.falcone.ui
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,7 @@ import com.git.falcone.model.data.response.FoundQueenResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -77,6 +79,4 @@ class FindFalconeViewModel @Inject constructor(
             queenLiveData.value?.let { emit(it) }
         }
     }
-
-
 }

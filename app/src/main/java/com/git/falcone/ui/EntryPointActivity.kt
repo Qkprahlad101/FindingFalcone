@@ -1,5 +1,6 @@
 package com.git.falcone.ui
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,13 +20,13 @@ class EntryPointActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            FindFalconeApp()
+            FindFalconeApp(applicationContext)
         }
     }
 }
 
 @Composable
-fun FindFalconeApp(){
+fun FindFalconeApp(applicationContext: Context) {
     val viewModel: FindFalconeViewModel = viewModel()
     val navController = rememberNavController()
     NavHost(
@@ -33,7 +34,7 @@ fun FindFalconeApp(){
         startDestination = Screen.MainScreen.route
     ) {
         composable(Screen.MainScreen.route) {
-            MainScreen(navController = navController, viewModel)
+            MainScreen(navController = navController, viewModel, applicationContext)
         }
         composable(Screen.ResultScreen.route) {
             ResultScreen(navController = navController, viewModel)
