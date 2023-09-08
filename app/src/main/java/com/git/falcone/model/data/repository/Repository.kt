@@ -67,7 +67,7 @@ class Repository @Inject constructor(
                         if (found?.status == "success" && found.planetName != null) {
                             emit(found)
                         } else {
-                            throw Exception("Queen was not among those planets!")
+                            throw Exception("Queen was not found in the selected planets!")
                         }
                     }
                     400 -> throw Exception("Bad Request! Check your request data! ${response.body().toString()}")

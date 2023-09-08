@@ -1,6 +1,5 @@
 package com.git.falcone.ui.composeUI
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -25,7 +24,6 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.RadioButton
 import androidx.compose.material.Surface
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -35,21 +33,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.git.falcone.model.data.request.RequestData
 import com.git.falcone.model.data.response.AuthKeyResponse
 import com.git.falcone.model.data.response.PlanetsResponse
 import com.git.falcone.model.data.response.VehicleResponse
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
+import com.git.falcone.ui.composeUI.UiComponents.Screen
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun MainScreen() {
-    val viewModel: FindFalconeViewModel = viewModel()
+fun MainScreen(navController: NavController, viewModel: FindFalconeViewModel) {
     val planetsData = viewModel.planetsLiveData.value ?: emptyList()
     val vehiclesData = listOf(
         VehicleResponse("Space pod", 2, 200, 2),
@@ -80,7 +74,6 @@ fun MainScreen() {
     val remainingQuantities4 =
         remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
 
-    var time = 0
     val scope = rememberCoroutineScope()
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -186,28 +179,19 @@ fun MainScreen() {
                                             ?: vehiclesData.find { it.name == selectedVehicle3.value?.name }
                                             ?: vehiclesData.find { it.name == selectedVehicle4.value?.name }
                                     if (vehicle != null) {
-                                        time = planet.distance / vehicle.speed
+                                        viewModel.timeTaken.value = planet.distance / vehicle.speed
                                     }
                                 }
                             }
                             viewModel.queenLiveData.value = response
                         }
                     }
+
+                    navController.navigate(Screen.ResultScreen.route)
                 }
             ) {
                 Text("Find Queen!")
             }
-
-            Text(
-                text = if(viewModel.queenLiveData.value != null) "Queen was found at ${viewModel.queenLiveData.value?.planetName}" else "",        //
-                modifier = Modifier.padding(top = 24.dp)
-            )
-
-            Text(
-                text = "Time Taken to find Queen: $time",
-                modifier = Modifier.padding(top = 24.dp)
-            )
-
             LaunchedEffect(Unit) {
                 viewModel.getAuthKey()
                 viewModel.getPlanets()
