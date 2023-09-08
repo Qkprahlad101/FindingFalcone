@@ -1,6 +1,8 @@
 package com.git.falcone.model.data.response
 
+import com.google.gson.annotations.SerializedName
+
 data class PlanetsResponse(
-    val name: String,
-    val distance: Int
+    @SerializedName("name") val name: String,
+    @SerializedName("distance") val distance: Int
 )

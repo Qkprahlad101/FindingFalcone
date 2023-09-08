@@ -27,7 +27,7 @@ class FindFalconeViewModel @Inject constructor(
     val vehiclesLiveData = mutableStateOf<List<VehicleResponse>>(emptyList())
     val authKeyLiveData = mutableStateOf<AuthKeyResponse?>(null)
     val queenLiveData = mutableStateOf<FoundQueenResponse?>(null)
-    var timeTaken = mutableStateOf<Int>(0)
+    var timeTaken = mutableStateOf(0)
 
     fun getAuthKey(){
         viewModelScope.launch(Dispatchers.IO) {

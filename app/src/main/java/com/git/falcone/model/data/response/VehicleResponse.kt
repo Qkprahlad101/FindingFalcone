@@ -1,10 +1,12 @@
 package com.git.falcone.model.data.response
 
+import com.google.gson.annotations.SerializedName
+
 data class VehicleResponse(
-    val name: String,
-    val totalNumber: Int,
-    val maxDistance: Int,
-    val speed: Int
+   @SerializedName("name") val name: String,
+   @SerializedName("total_no") val totalNumber: Int,
+   @SerializedName("max_distance") val maxDistance: Int,
+   @SerializedName("speed") val speed: Int
 ) {
     var remainingNumber: Int = totalNumber
 }

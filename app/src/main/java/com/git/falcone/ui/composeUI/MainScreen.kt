@@ -50,13 +50,9 @@ fun MainScreen(
     viewModel: FindFalconeViewModel,
     applicationContext: Context
 ) {
-    val planetsData = viewModel.planetsLiveData.value
-    val vehiclesData = listOf(
-        VehicleResponse("Space pod", 2, 200, 2),
-        VehicleResponse("Space rocket", 1, 300, 4),
-        VehicleResponse("Space shuttle", 1, 400, 5),
-        VehicleResponse("Space ship", 2, 600, 10)
-    )
+    val planetsData = viewModel.planetsLiveData.value ?: emptyList()
+    val vehiclesData = viewModel.vehiclesLiveData.value ?: emptyList()
+
     val authKey: AuthKeyResponse = viewModel.authKeyLiveData.value ?: AuthKeyResponse(key = "")
     val selectedPlanet1 = remember { mutableStateOf<PlanetsResponse?>(null) }
     val selectedVehicle1 = remember { mutableStateOf<VehicleResponse?>(null) }
@@ -78,6 +74,7 @@ fun MainScreen(
         remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
     val remainingQuantities4 =
         remember { mutableStateListOf(*vehiclesData.map { it.totalNumber }.toTypedArray()) }
+
 
     val scope = rememberCoroutineScope()
     Surface(
@@ -109,13 +106,11 @@ fun MainScreen(
                         style = MaterialTheme.typography.h5
                     )
                     Text(
-                        text = "Reset /",
-                        style = MaterialTheme.typography.caption,
+                        text = "Reset/",
                         color = MaterialTheme.colors.secondary
                     )
                     Text(
                         text = "GeekTrust Home",
-                        style = MaterialTheme.typography.caption,
                         color = MaterialTheme.colors.secondary
                     )
 
@@ -130,12 +125,12 @@ fun MainScreen(
 
             Dropdown(
                 selectedPlanet1,
-                planetsData.filter { it !== selectedPlanet2.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
+                planetsData?.filter { it !== selectedPlanet2.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select a Planet"
             )
             RadioGroup(
                 selectedVehicle1,
-                vehiclesData,
+                vehiclesData ?: emptyList(),
                 "Vehicle 1",
                 0,
                 remainingQuantities1,
@@ -144,12 +139,12 @@ fun MainScreen(
 
             Dropdown(
                 selectedPlanet2,
-                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
+                planetsData?.filter { it !== selectedPlanet1.value && it !== selectedPlanet3.value && it !== selectedPlanet4.value },
                 "Select another Planet"
             )
             RadioGroup(
                 selectedVehicle2,
-                vehiclesData,
+                vehiclesData ?: emptyList(),
                 "Vehicle 2",
                 1,
                 remainingQuantities2,
@@ -158,12 +153,12 @@ fun MainScreen(
 
             Dropdown(
                 selectedPlanet3,
-                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet4.value },
+                planetsData?.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet4.value },
                 "Select a third Planet"
             )
             RadioGroup(
                 selectedVehicle3,
-                vehiclesData,
+                vehiclesData ?: emptyList(),
                 "Vehicle 3",
                 2,
                 remainingQuantities3,
@@ -172,12 +167,12 @@ fun MainScreen(
 
             Dropdown(
                 selectedPlanet4,
-                planetsData.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet3.value },
+                planetsData?.filter { it !== selectedPlanet1.value && it !== selectedPlanet2.value && it !== selectedPlanet3.value },
                 "Select a fourth Planet"
             )
             RadioGroup(
                 selectedVehicle4,
-                vehiclesData,
+                vehiclesData ?: emptyList(),
                 "Vehicle 4",
                 3,
                 remainingQuantities4,
@@ -216,13 +211,13 @@ fun MainScreen(
                             viewModel.findQueen(request).collect { response ->
                                 val planetName = response.planetName
                                 if (planetName != null) {
-                                    val planet = planetsData.find { it.name == planetName }
+                                    val planet = planetsData?.find { it.name == planetName }
                                     if (planet != null) {
                                         val vehicle =
-                                            vehiclesData.find { it.name == selectedVehicle1.value?.name }
-                                                ?: vehiclesData.find { it.name == selectedVehicle2.value?.name }
-                                                ?: vehiclesData.find { it.name == selectedVehicle3.value?.name }
-                                                ?: vehiclesData.find { it.name == selectedVehicle4.value?.name }
+                                            vehiclesData?.find { it.name == selectedVehicle1.value?.name }
+                                                ?: vehiclesData?.find { it.name == selectedVehicle2.value?.name }
+                                                ?: vehiclesData?.find { it.name == selectedVehicle3.value?.name }
+                                                ?: vehiclesData?.find { it.name == selectedVehicle4.value?.name }
                                         if (vehicle != null) {
                                             viewModel.timeTaken.value = planet.distance / vehicle.speed
                                         }
@@ -248,7 +243,9 @@ fun MainScreen(
 
             // Footer
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.Gray)
+                modifier = Modifier.fillMaxSize()
+                    .background(Color.Gray)
+                    .padding(top = 16.dp, bottom = 16.dp)
             ) {
                     Text(
                         text = "Coding Problem - www.geektrust.in/finding-falcone"
@@ -273,38 +270,41 @@ fun RadioGroup(
             color = MaterialTheme.colors.onSecondary
         )
 
-        vehiclesData.forEachIndexed { index, vehicle ->
-            val isVehicleSelectable = (selectedPlanet?.distance ?: 0) <= vehicle.maxDistance
+        if (remainingQuantities.isNotEmpty() && vehiclesData.isNotEmpty()) {
+            vehiclesData.forEachIndexed { index, vehicle ->
+                val isVehicleSelectable = (selectedPlanet?.distance ?: 0) <= vehicle.maxDistance
 
-            if (remainingQuantities[index] > 0 && isVehicleSelectable) {
-                Row {
-                    RadioButton(
-                        selected = selectedVehicle.value === vehicle,
-                        onClick = {
-                            selectedVehicle.value = vehicle
+                if (remainingQuantities[index] > 0 && isVehicleSelectable) {
+                    Row {
+                        RadioButton(
+                            selected = selectedVehicle.value === vehicle,
+                            onClick = {
+                                selectedVehicle.value = vehicle
 
-                            remainingQuantities[vehicleIndex] -= 1
-                            remainingQuantities[index] += 1
-                        }
-                    )
-                    Text(text = "${vehicle.name} (${remainingQuantities[index]} left)")
-                }
-            } else {
-                Row {
-                    RadioButton(
-                        selected = false,
-                        enabled = false,
-                        onClick = {}
-                    )
-                    Text(
-                        text = "${vehicle.name} (0 left)",
-                        color = if (isVehicleSelectable) Color.Black else Color.Gray
-                    )
+                                remainingQuantities[vehicleIndex] -= 1
+                                remainingQuantities[index] += 1
+                            }
+                        )
+                        Text(text = "${vehicle.name} (${remainingQuantities[index]} left)")
+                    }
+                } else {
+                    Row {
+                        RadioButton(
+                            selected = false,
+                            enabled = false,
+                            onClick = {}
+                        )
+                        Text(
+                            text = "${vehicle.name} (0 left)",
+                            color = if (isVehicleSelectable) Color.Black else Color.Gray
+                        )
+                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun Dropdown(
