@@ -21,12 +21,23 @@ class Repository @Inject constructor(
 
         return flow {
             val response = apiService.getPlanets()
-            if (response.isSuccessful) {
-                val planets = response.body() ?: emptyList()
-                emit(planets)
-            } else {
-                val statusCode = response.code()
-                throw Exception("Failed to find planets, Status code: $statusCode")
+            try{
+                when(response.code()){
+                    200 -> {
+                        if (response.isSuccessful) {
+                            val planets = response.body() ?: emptyList()
+                            emit(planets)
+                        } else {
+                            val statusCode = response.code()
+                            throw Exception("Failed to find planets, Status code: $statusCode")
+                        }
+                    }
+                    400 -> throw Exception("400 Bad Request!${response.body().toString()}")
+                    404 -> throw Exception("404 Not Found! ${response.body().toString()}")
+                    else -> throw Exception("Failed to get Planets, Status code: ${response.code()}")
+                }
+            }catch (e: Exception) {
+                throw Exception("Error: ${e.message}")
             }
         }.flowOn(Dispatchers.IO)
     }
@@ -34,12 +45,23 @@ class Repository @Inject constructor(
     suspend fun getVehicles(): Flow<List<VehicleResponse>> {
         return flow {
             val response = apiService.getVehicles()
-            if (response.isSuccessful) {
-                val vehicles = response.body() ?: emptyList()
-                emit(vehicles)
-            } else {
-                val statusCode = response.code()
-                throw Exception("Failed to find vehicles, Status code: $statusCode")
+            try {
+                when (response.code()) {
+                    200 -> {
+                        if (response.isSuccessful) {
+                            val vehicles = response.body() ?: emptyList()
+                            emit(vehicles)
+                        } else {
+                            val statusCode = response.code()
+                            throw Exception("Failed to find vehicles, Status code: $statusCode")
+                        }
+                    }
+                    400 -> throw Exception("400 Bad Request!${response.body().toString()}")
+                    404 -> throw Exception("404 Not Found! ${response.body().toString()}")
+                    else -> throw Exception("Failed to get Vehicles, Status code: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                throw Exception("Error: ${e.message}")
             }
         }.flowOn(Dispatchers.IO)
     }
@@ -47,15 +69,27 @@ class Repository @Inject constructor(
     suspend fun getAuthKey(): Flow<AuthKeyResponse> {
         return flow {
             val response = apiService.getAuthKey()
-            if (response.isSuccessful) {
-                val key = response.body() ?: AuthKeyResponse(key = "")
-                emit(key)
-            } else {
-                val statusCode = response.code()
-                throw Exception("Failed to get Auth key, Status code: $statusCode")
+            try {
+                when (response.code()) {
+                    200 -> {
+                        if (response.isSuccessful) {
+                            val key = response.body() ?: AuthKeyResponse(key = "")
+                            emit(key)
+                        } else {
+                            val statusCode = response.code()
+                            throw Exception("Failed to get Auth key, Status code: $statusCode")
+                        }
+                    }
+                    400 -> throw Exception("400 Bad Request!${response.body().toString()}")
+                    404 -> throw Exception("404 Not Found! ${response.body().toString()}")
+                    else -> throw Exception("Failed to get Auth key, Status code: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                throw Exception("Error: ${e.message}")
             }
         }.flowOn(Dispatchers.IO)
     }
+
 
     fun findQueen(request: RequestData): Flow<FoundQueenResponse?> {
         return flow {
@@ -70,8 +104,8 @@ class Repository @Inject constructor(
                             throw Exception("Queen was not found in the selected planets!")
                         }
                     }
-                    400 -> throw Exception("Bad Request! Check your request data! ${response.body().toString()}")
-                    404 -> throw Exception("Not Found! Check your API endpoint!")
+                    400 -> throw Exception("400 Bad Request!${response.body().toString()}")
+                    404 -> throw Exception("404 Not Found! ${response.body().toString()}")
                     else -> throw Exception("Failed to find Queen, Status code: ${response.code()}")
                 }
             } catch (e: Exception) {

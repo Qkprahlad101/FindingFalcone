@@ -95,7 +95,6 @@ fun MainScreen(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
